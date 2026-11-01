@@ -1,0 +1,145 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CREATIVE AI STUDIO</title>
+  <meta name="description" content="Browser-based photo and video editor. Phase 1." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
+  <link rel="stylesheet" href="css/studio.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">CREATIVE AI STUDIO</div>
+      <div class="project-name" id="project-name">Untitled project</div>
+      <div class="top-actions">
+        <button class="btn" id="btn-undo" type="button" disabled>Undo</button>
+        <button class="btn" id="btn-redo" type="button" disabled>Redo</button>
+      </div>
+    </header>
+
+    <nav class="sidebar" aria-label="Workspaces">
+      <button class="nav-item is-active" data-view="media" type="button">Media Library</button>
+      <button class="nav-item" data-view="photo" type="button">Photo Editor</button>
+      <button class="nav-item" data-view="video" type="button">Video Editor</button>
+      <button class="nav-item" data-view="audio" type="button">Audio Studio</button>
+      <button class="nav-item" data-view="export" type="button">Export</button>
+      <div class="nav-group">Later phases</div>
+      <span class="nav-item is-later">AI Studio <em>Phase 3</em></span>
+      <span class="nav-item is-later">Effects <em>Phase 2</em></span>
+      <span class="nav-item is-later">Color Grading <em>Phase 2</em></span>
+      <span class="nav-item is-later">Text and Titles <em>Phase 2</em></span>
+      <span class="nav-item is-later">Templates <em>Phase 4</em></span>
+    </nav>
+
+    <main class="center">
+      <section class="panel" id="view-media">
+        <div class="drop" id="drop">
+          <p>Drop images, video or audio here</p>
+          <button class="btn btn-primary" id="btn-import" type="button">Choose files</button>
+          <input id="file-input" type="file" multiple accept="image/*,video/*,audio/*" hidden />
+        </div>
+        <ul class="media-list" id="media-list"></ul>
+      </section>
+
+      <section class="panel" id="view-photo" hidden>
+        <div class="photo-stage">
+          <canvas id="photo-canvas"></canvas>
+          <p class="muted" id="photo-empty">Pick an image in the Media Library, then open it here.</p>
+        </div>
+        <div class="row">
+          <button class="btn" id="photo-compare" type="button" disabled>Hold to compare</button>
+          <button class="btn" id="photo-rotate" type="button" disabled>Rotate 90°</button>
+          <button class="btn" id="photo-flip" type="button" disabled>Flip</button>
+          <button class="btn" id="photo-reset" type="button" disabled>Reset</button>
+          <button class="btn btn-primary" id="photo-download" type="button" disabled>Download PNG</button>
+        </div>
+      </section>
+
+      <section class="panel" id="view-video" hidden>
+        <div class="preview">
+          <video id="preview-video" playsinline preload="auto"></video>
+          <canvas id="preview-canvas" hidden></canvas>
+          <p class="muted" id="preview-empty">Add a video or image to the timeline to preview it.</p>
+        </div>
+        <div class="transport">
+          <button class="btn" id="btn-play" type="button">Play</button>
+          <button class="btn" id="btn-to-start" type="button">To start</button>
+          <span class="timecode" id="timecode">00:00.00 / 00:00.00</span>
+          <label class="zoom">Zoom <input id="zoom" type="range" min="10" max="200" value="40" /></label>
+        </div>
+        <div class="timeline" id="timeline">
+          <div class="ruler" id="ruler"></div>
+          <div class="tracks" id="tracks"></div>
+        </div>
+        <div class="row">
+          <button class="btn" id="btn-split" type="button">Split at playhead</button>
+          <button class="btn" id="btn-delete" type="button" disabled>Delete clip</button>
+          <button class="btn" id="btn-dup" type="button" disabled>Duplicate</button>
+          <select id="transition" class="select" disabled>
+            <option value="none">No transition</option>
+            <option value="fade">Fade in</option>
+            <option value="dip">Dip to black</option>
+            <option value="dissolve">Cross dissolve</option>
+          </select>
+          <label class="check"><input id="snap" type="checkbox" checked /> Snap</label>
+        </div>
+      </section>
+
+      <section class="panel" id="view-audio" hidden>
+        <p class="muted">Audio clips you add to the timeline appear here with their waveform.</p>
+        <div class="wave-wrap">
+          <canvas id="wave-canvas" height="160"></canvas>
+        </div>
+        <div class="row">
+          <label class="field">Clip volume <input id="audio-volume" type="range" min="0" max="100" value="100" disabled /></label>
+        </div>
+      </section>
+
+      <section class="panel" id="view-export" hidden>
+        <div class="field-grid">
+          <label class="field">Format
+            <select id="export-format" class="select"><option value="webm">WebM</option></select>
+          </label>
+          <label class="field">Output size
+            <select id="export-size" class="select">
+              <option value="1280x720">1280 × 720 (16:9)</option>
+              <option value="1920x1080">1920 × 1080 (16:9)</option>
+              <option value="1080x1920">1080 × 1920 (9:16)</option>
+              <option value="1080x1080">1080 × 1080 (1:1)</option>
+            </select>
+          </label>
+          <label class="field">Bitrate (Mbps)
+            <input id="export-bitrate" type="number" min="1" max="20" step="1" value="6" />
+          </label>
+        </div>
+        <p class="muted" id="export-note">Export plays the timeline in real time, so a 30 s timeline takes about 30 s to render. Only WebM is offered, because it is the format the browser records reliably.</p>
+        <div class="row">
+          <button class="btn btn-primary" id="btn-export" type="button" disabled>Export WebM</button>
+          <span id="export-status" class="muted"></span>
+        </div>
+        <a id="export-link" class="btn" hidden download="export.webm">Download</a>
+      </section>
+    </main>
+
+    <aside class="inspector" aria-label="Properties">
+      <h2>Properties</h2>
+      <div id="inspector-body">
+        <p class="muted">Select a media item or a clip.</p>
+      </div>
+    </aside>
+
+    <footer class="statusbar" id="statusbar">Ready. Original files are never changed.</footer>
+  </div>
+
+  <script src="js/media.js"></script>
+  <script src="js/photo.js"></script>
+  <script src="js/timeline.js"></script>
+  <script src="js/render.js"></script>
+  <script src="js/export.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
